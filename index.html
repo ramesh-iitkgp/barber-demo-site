@@ -31,6 +31,7 @@
         const businessName = slugToTitle(nameSlug);
 
         document.addEventListener('DOMContentLoaded', function() {
+            function applyUpdates() {
             if (phone) {
                 const parts = [];
                 if (businessName) parts.push(businessName);
@@ -74,13 +75,13 @@
                         if (!el.childNodes || el.childNodes.length !== 1) return;
                         const text = (el.textContent || '').trim();
                         if (!text) return;
+                        const normalized = text.replace(/\s+/g, ' ').toUpperCase();
                         // Old cafe template brand
-                        if (text === 'Open House Cafe') {
+                        if (normalized === 'OPEN HOUSE CAFE') {
                             el.textContent = businessName;
                         }
                         // Barber template brands
-                        if (text === "GENTLEMAN'S & CO." || text === "Gentleman's & Co." ||
-                            text === 'BLADE & CO.' || text === 'Blade & Co.') {
+                        if (normalized === "GENTLEMAN'S & CO." || normalized === 'BLADE & CO.') {
                             el.textContent = businessName.toUpperCase();
                         }
                     });
@@ -106,6 +107,11 @@
                     });
                 } catch (e) {}
             }
+        }
+
+        applyUpdates();
+        setTimeout(applyUpdates, 1200);
+        setTimeout(applyUpdates, 3000);
         });
     </script>
 </body>
