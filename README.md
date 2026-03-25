@@ -1,20 +1,20 @@
-# barber Demo Site
+<div align="center">
+<img width="1200" height="475" alt="GHBanner" src="https://github.com/user-attachments/assets/0aa67016-6eaf-458a-adb2-6e31a0763ed6" />
+</div>
 
-Demo website for barber business type.
+# Run and deploy your AI Studio app
 
-## Live Demo
-https://ramesh-iitkgp.github.io/barber-demo-site/
+This contains everything you need to run your app locally.
 
-## Features
-- Professional demo template
-- Lead generation and management
-- WhatsApp campaign automation
-- Business analytics
+View your app in AI Studio: https://ai.studio/apps/8827cf4e-5cb6-4224-a9b3-ea89626edea9
 
-## Quick Start
-1. Clone this repository
-2. Open `index.html` in a browser
-3. Customize with your business details
+## Run Locally
 
----
-Generated on Wed Mar 25 04:50:47 AM IST 2026
+**Prerequisites:**  Node.js
+
+
+1. Install dependencies:
+   `npm install`
+2. Set the `GEMINI_API_KEY` in [.env.local](.env.local) to your Gemini API key
+3. Run the app:
+   `npm run dev`
