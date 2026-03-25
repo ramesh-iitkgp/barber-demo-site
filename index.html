@@ -1,20 +1,6 @@
 <!doctype html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>BLADE & CO. | Premium Barbershop</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400;1,500&family=Inter:wght@300;400;500;600;700&family=Bebas+Neue&display=swap" rel="stylesheet">
-    <script type="module" crossorigin src="/barber-demo-site/assets/index-CTMqVMUM.js"></script>
-    <link rel="stylesheet" crossorigin href="/barber-demo-site/assets/index-BSbLxi7U.css">
-  </head>
-  <body>
-    <div id="root"></div>
-  
-    <!-- Dynamic Business & WhatsApp Injection -->
-    <script>
+  <head><script>
         window.__dynamicParams = {};
         const params = new URLSearchParams(window.location.search);
         window.__dynamicParams.nameSlug = params.get('name') || '';
@@ -27,9 +13,19 @@
         }
         
         window.__dynamicParams.businessName = slugToTitle(window.__dynamicParams.nameSlug);
-        console.log('✅ INJECTION SCRIPT EXECUTED:', window.__dynamicParams);
+        console.log('✅ EARLY INJECTION:', window.__dynamicParams);
     </script>
-
-</body>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>BLADE & CO. | Premium Barbershop</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400;1,500&family=Inter:wght@300;400;500;600;700&family=Bebas+Neue&display=swap" rel="stylesheet">
+    <script type="module" crossorigin src="/barber-demo-site/assets/index-B0iGxvyI.js"></script>
+    <link rel="stylesheet" crossorigin href="/barber-demo-site/assets/index-BSbLxi7U.css">
+  </head>
+  <body>
+    <div id="root"></div>
+  </body>
 </html>
 
