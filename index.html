@@ -53,11 +53,38 @@
             }
 
             if (businessName) {
+                // Update document title when possible
+                try {
+                    if (location) {
+                        document.title = `${businessName} | ${location}`;
+                    } else {
+                        document.title = businessName;
+                    }
+                } catch (e) {}
+
                 document.querySelectorAll('[id*="name" i], [id*="title" i]').forEach(el => {
                     if (el.textContent && el.textContent.length < 80) {
                         el.textContent = businessName;
                     }
                 });
+
+                // Fallback for templates with hard-coded texts (cafe + barber etc.)
+                try {
+                    document.querySelectorAll('body *').forEach(el => {
+                        if (!el.childNodes || el.childNodes.length !== 1) return;
+                        const text = (el.textContent || '').trim();
+                        if (!text) return;
+                        // Old cafe template brand
+                        if (text === 'Open House Cafe') {
+                            el.textContent = businessName;
+                        }
+                        // Barber template brands
+                        if (text === "GENTLEMAN'S & CO." || text === "Gentleman's & Co." ||
+                            text === 'BLADE & CO.' || text === 'Blade & Co.') {
+                            el.textContent = businessName.toUpperCase();
+                        }
+                    });
+                } catch (e) {}
             }
 
             if (location) {
@@ -66,6 +93,18 @@
                         el.textContent = location;
                     }
                 });
+
+                // Fallback for templates with hard-coded Siliguri location text
+                try {
+                    document.querySelectorAll('body *').forEach(el => {
+                        if (!el.childNodes || el.childNodes.length !== 1) return;
+                        const text = (el.textContent || '').trim();
+                        if (!text) return;
+                        if (text === 'Siliguri' || text === 'Cafe in Siliguri') {
+                            el.textContent = location;
+                        }
+                    });
+                } catch (e) {}
             }
         });
     </script>
