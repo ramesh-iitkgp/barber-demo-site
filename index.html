@@ -17,7 +17,7 @@
     <script>
         const params = new URLSearchParams(window.location.search);
         const nameSlug = params.get('name') || '';
-        const location = params.get('location') || '';
+        const cityLocation = params.get('location') || '';
         const phone = (params.get('phone') || '').replace(/\D/g, '');
 
         function slugToTitle(slug) {
@@ -27,23 +27,9 @@
 
         const businessName = slugToTitle(nameSlug);
 
-        // Inject CSS for brand name override (works for images/SVGs too)
-        const style = document.createElement('style');
-        style.textContent = `
-            /* Hide original brand text/images */
-            body *:not(script):not(style) {
-                --original-text: '';
-            }
-            /* Override specific brand names with new ones */
-            [class*="logo"], [class*="brand"], [class*="header"], [id*="logo"], [id*="brand"] {
-                font-size: inherit !important;
-            }
-        `;
-        document.head.appendChild(style);
-
         function applyUpdates() {
             if (phone) {
-                const parts = [businessName, location].filter(Boolean);
+                const parts = [businessName, cityLocation].filter(Boolean);
                 const msg = encodeURIComponent(parts.join(' - '));
                 const url = `https://wa.me/${phone}?text=${msg}`;
                 document.querySelectorAll('a[href*="wa.me"], a[href*="whatsapp"], #whatsappNav, .whatsapp-btn, .btn-whatsapp').forEach(a => {
@@ -54,7 +40,7 @@
             }
 
             if (businessName) {
-                try { document.title = location ? `${businessName} | ${location}` : businessName; } catch (e) {}
+                try { document.title = cityLocation ? `${businessName} | ${cityLocation}` : businessName; } catch (e) {}
                 document.querySelectorAll('[id*="name" i], [id*="title" i]').forEach(el => {
                     if (el.textContent && el.textContent.length < 80) el.textContent = businessName;
                 });
@@ -74,15 +60,15 @@
                 });
             }
 
-            if (location) {
+            if (cityLocation) {
                 document.querySelectorAll('[id*="location" i], [id*="city" i]').forEach(el => {
-                    if (el.textContent && el.textContent.length < 80) el.textContent = location;
+                    if (el.textContent && el.textContent.length < 80) el.textContent = cityLocation;
                 });
                 const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT, null, false);
                 let node;
                 while (node = walker.nextNode()) {
                     const text = node.textContent.trim();
-                    if (text === 'Siliguri' || text === 'Cafe in Siliguri') node.textContent = location;
+                    if (text === 'Siliguri' || text === 'Cafe in Siliguri') node.textContent = cityLocation;
                 }
             }
         }
