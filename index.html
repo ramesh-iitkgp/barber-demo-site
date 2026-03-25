@@ -13,7 +13,7 @@
   <body>
     <div id="root"></div>
   
-    <!-- Dynamic Business & WhatsApp Injection (post-build, React-aware v2) -->
+    <!-- Dynamic Business & WhatsApp Injection (post-build, React-aware v3) -->
     <script>
         window.__dynamicParams = window.__dynamicParams || {};
         const params = new URLSearchParams(window.location.search);
@@ -37,13 +37,14 @@
             const { businessName, cityLocation, phone } = window.__dynamicParams;
             
             try {
+                // 1) Update page title
                 if (businessName) {
                     document.title = cityLocation
                         ? `${businessName} | ${cityLocation}`
                         : businessName;
-                    console.log('✅ Title updated');
                 }
 
+                // 2) Update business/brand headings
                 if (businessName) {
                     const headingSelectors = ['h1', 'h2', '[class*="Hero"]', '[class*="hero"]', '[class*="Title"]', '[class*="title"]', '[id*="name"]', '[id*="title"]'];
                     const seen = new Set();
@@ -60,54 +61,94 @@
                                     headingCount++;
                                 }
                             });
-                        } catch (e) { console.error('Heading selector error:', sel, e); }
+                        } catch (e) { }
                     });
-                    console.log(`✅ Updated ${headingCount} headings`);
                 }
 
+                // 3) UPDATE LOCATION - SPECIFIC & AGGRESSIVE
                 if (cityLocation) {
-                    const locSelectors = ['[id*="location"]', '[class*="location"]', '[id*="city"]', '[class*="city"]', '[id*="address"]'];
-                    let locCount = 0;
-                    locSelectors.forEach(sel => {
-                        try {
-                            document.querySelectorAll(sel).forEach(el => {
-                                if (!el.textContent || el.textContent.length <= 100) {
+                    try {
+                        // Direct ID targeting first
+                        const locElements = [
+                            document.getElementById('contactLocation'),
+                            ...document.querySelectorAll('[id*="location"]'),
+                            ...document.querySelectorAll('[class*="location"]'),
+                            ...document.querySelectorAll('[id*="city"]'),
+                            ...document.querySelectorAll('[class*="city"]'),
+                            ...document.querySelectorAll('[id*="address"]')
+                        ].filter(el => el !== null);
+                        
+                        let locCount = 0;
+                        locElements.forEach(el => {
+                            try {
+                                const currentText = (el.textContent || '').trim();
+                                // Update if it's either empty, short, or contains a location-like text
+                                if (!currentText || currentText.length <= 100 || /street|siliguri|location|address|city|main/i.test(currentText)) {
+                                    // Also try to update attributes if it's an input
+                                    if (el.value !== undefined) {
+                                        el.value = cityLocation;
+                                    }
+                                    // Update text content
                                     el.textContent = cityLocation;
                                     locCount++;
                                 }
-                            });
-                        } catch (e) { }
-                    });
-                    console.log(`✅ Updated ${locCount} location elements`);
+                            } catch (e) { }
+                        });
+                        console.log(`✅ Updated ${locCount} location elements`);
+                    } catch (e) {
+                        console.error('Location update error:', e);
+                    }
                 }
 
+                // 4) UPDATE PHONE - SPECIFIC & AGGRESSIVE  
                 if (phone) {
-                    const parts = [businessName, cityLocation].filter(Boolean);
-                    const msg = encodeURIComponent(parts.join(' - '));
-                    const url = `https://wa.me/${phone}?text=${msg}`;
-                    let whatsappCount = 0;
                     try {
+                        const phoneElements = [
+                            document.getElementById('contactPhone'),
+                            ...document.querySelectorAll('[id*="phone"]'),
+                            ...document.querySelectorAll('[class*="phone"]'),
+                            ...document.querySelectorAll('[data-phone]')
+                        ].filter(el => el !== null);
+                        
+                        let phoneCount = 0;
+                        phoneElements.forEach(el => {
+                            try {
+                                const currentText = (el.textContent || '').trim();
+                                // Update phone if it matches a phone number pattern or is short
+                                if (!currentText || currentText.length <= 30 || /\d{4,}|phone|contact|call/i.test(currentText)) {
+                                    if (el.value !== undefined) {
+                                        el.value = phone;
+                                    }
+                                    el.textContent = phone;
+                                    phoneCount++;
+                                }
+                            } catch (e) { }
+                        });
+                        console.log(`✅ Updated ${phoneCount} phone elements`);
+
+                        // Update WhatsApp links
+                        const parts = [businessName, cityLocation].filter(Boolean);
+                        const msg = encodeURIComponent(parts.join(' - '));
+                        const url = `https://wa.me/${phone}?text=${msg}`;
                         document.querySelectorAll('a[href*="wa.me"], a[href*="whatsapp"], .whatsapp-btn, .btn-whatsapp').forEach(a => {
                             a.setAttribute('href', url);
                             a.setAttribute('target', '_blank');
                             a.setAttribute('rel', 'noopener');
-                            whatsappCount++;
                         });
-                        document.querySelectorAll('[id*="phone"], [class*="phone"], [data-phone]').forEach(el => {
-                            el.textContent = phone;
-                        });
-                        console.log(`✅ Updated ${whatsappCount} WhatsApp links`);
-                    } catch (e) { console.error('WhatsApp update error:', e); }
+                        console.log(`✅ WhatsApp links updated`);
+                    } catch (e) {
+                        console.error('Phone update error:', e);
+                    }
                 }
             } catch (e) {
                 console.error('❌ Injection error:', e);
             }
         }
 
-        // Strategy: Try multiple times with increasing delays to catch React render
+        // Strategy: Apply multiple times at increasing intervals to survive React re-renders
         let attempt = 0;
-        const maxAttempts = 30;
-        const delays = [0, 100, 300, 500, 800, 1200, 1800, 2500, 3500, 5000];
+        const maxAttempts = 50;  // More attempts
+        const delays = [0, 50, 100, 200, 400, 600, 900, 1300, 1800, 2500, 3500, 5000];
         
         function scheduleApply() {
             if (attempt < maxAttempts) {
@@ -130,17 +171,17 @@
             scheduleApply();
         }
 
-        // Mutation observer for late React renders
+        // Aggressive MutationObserver to catch all React changes
         try {
             new MutationObserver(() => {
                 applyDynamicUpdates();
             }).observe(document.documentElement, {
                 childList: true,
                 subtree: true,
-                characterData: false,
-                attributes: false,
+                characterData: true,  // Also watch for text changes
+                attributes: true,      // Watch for attribute changes
             });
-            console.log('✅ MutationObserver active');
+            console.log('✅ MutationObserver active (aggressive mode)');
         } catch (e) {
             console.error('MutationObserver error:', e);
         }
