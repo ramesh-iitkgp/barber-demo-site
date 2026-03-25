@@ -22,31 +22,19 @@
 
         function slugToTitle(slug) {
             if (!slug) return 'Business';
-            return slug
-                .split('-')
-                .map(w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase())
-                .join(' ');
+            return slug.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase()).join(' ');
         }
 
         const businessName = slugToTitle(nameSlug);
 
-        document.addEventListener('DOMContentLoaded', function() {
-            function applyUpdates() {
+        function applyUpdates() {
             if (phone) {
                 const parts = [];
                 if (businessName) parts.push(businessName);
                 if (location) parts.push(location);
                 const msg = encodeURIComponent(parts.join(' - '));
                 const url = `https://wa.me/${phone}?text=${msg}`;
-
-                const selectors = [
-                    'a[href*="wa.me"]',
-                    'a[href*="whatsapp"]',
-                    '#whatsappNav',
-                    '.whatsapp-btn',
-                    '.btn-whatsapp',
-                ];
-                document.querySelectorAll(selectors.join(',')).forEach(a => {
+                document.querySelectorAll('a[href*="wa.me"], a[href*="whatsapp"], #whatsappNav, .whatsapp-btn, .btn-whatsapp').forEach(a => {
                     a.setAttribute('href', url);
                     a.setAttribute('target', '_blank');
                     a.setAttribute('rel', 'noopener');
@@ -54,65 +42,38 @@
             }
 
             if (businessName) {
-                // Update document title when possible
-                try {
-                    if (location) {
-                        document.title = `${businessName} | ${location}`;
-                    } else {
-                        document.title = businessName;
-                    }
-                } catch (e) {}
-
+                try { document.title = location ? `${businessName} | ${location}` : businessName; } catch (e) {}
                 document.querySelectorAll('[id*="name" i], [id*="title" i]').forEach(el => {
-                    if (el.textContent && el.textContent.length < 80) {
-                        el.textContent = businessName;
+                    if (el.textContent && el.textContent.length < 80) el.textContent = businessName;
+                });
+                document.querySelectorAll('*').forEach(el => {
+                    if (!el.childNodes || el.childNodes.length !== 1) return;
+                    const text = (el.textContent || '').trim();
+                    if (!text) return;
+                    const norm = text.replace(/\s+/g, ' ').toUpperCase();
+                    if (norm === 'OPEN HOUSE CAFE' || norm === "GENTLEMAN'S & CO." || norm === 'BLADE & CO.') {
+                        el.textContent = businessName.toUpperCase();
                     }
                 });
-
-                // Fallback for templates with hard-coded texts (cafe + barber etc.)
-                try {
-                    document.querySelectorAll('body *').forEach(el => {
-                        if (!el.childNodes || el.childNodes.length !== 1) return;
-                        const text = (el.textContent || '').trim();
-                        if (!text) return;
-                        const normalized = text.replace(/\s+/g, ' ').toUpperCase();
-                        // Old cafe template brand
-                        if (normalized === 'OPEN HOUSE CAFE') {
-                            el.textContent = businessName;
-                        }
-                        // Barber template brands
-                        if (normalized === "GENTLEMAN'S & CO." || normalized === 'BLADE & CO.') {
-                            el.textContent = businessName.toUpperCase();
-                        }
-                    });
-                } catch (e) {}
             }
 
             if (location) {
                 document.querySelectorAll('[id*="location" i], [id*="city" i]').forEach(el => {
-                    if (el.textContent && el.textContent.length < 80) {
-                        el.textContent = location;
-                    }
+                    if (el.textContent && el.textContent.length < 80) el.textContent = location;
                 });
-
-                // Fallback for templates with hard-coded Siliguri location text
-                try {
-                    document.querySelectorAll('body *').forEach(el => {
-                        if (!el.childNodes || el.childNodes.length !== 1) return;
-                        const text = (el.textContent || '').trim();
-                        if (!text) return;
-                        if (text === 'Siliguri' || text === 'Cafe in Siliguri') {
-                            el.textContent = location;
-                        }
-                    });
-                } catch (e) {}
+                document.querySelectorAll('*').forEach(el => {
+                    const text = (el.textContent || '').trim();
+                    if (text === 'Siliguri' || text === 'Cafe in Siliguri') el.textContent = location;
+                });
             }
         }
 
         applyUpdates();
-        setTimeout(applyUpdates, 1200);
-        setTimeout(applyUpdates, 3000);
-        });
+        setTimeout(applyUpdates, 800);
+        setTimeout(applyUpdates, 2000);
+        
+        // MutationObserver to catch React re-renders
+        new MutationObserver(() => applyUpdates()).observe(document.body, { childList: true, subtree: true });
     </script>
 </body>
 </html>
