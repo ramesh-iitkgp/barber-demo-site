@@ -123,44 +123,121 @@
         <p>&copy; 2026 Premium Barber Shop.</p>
     </footer>
 
-    <script></script>
     <!-- FIXED: All JavaScript inline with proper DOMContentLoaded -->
+        <!-- Dynamic Injection Script with Slug Conversion -->
     <script>
+        // ✅ WORKING INJECTION LOGIC (from cafe template)
+        // Convert slug to title case: "trippy-goat-cafe" → "Trippy Goat Cafe"
+        function slugToTitle(slug) {
+            if (!slug) return 'Business';
+            return slug
+                .split('-')
+                .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+                .join(' ');
+        }
+
+        // Get URL parameters
+        const params = new URLSearchParams(window.location.search);
+        const nameSlug = params.get('name') || '';
+        const location = params.get('location') || 'Your Location';
+        const phone = params.get('phone') || '';
+
+        // Convert slug to proper case
+        const businessName = nameSlug ? slugToTitle(nameSlug) : 'Business';
+
+        // Debug logging
+        console.log('🎯 URL Injection Active:');
+        console.log('  nameSlug:', nameSlug);
+        console.log('  businessName:', businessName);
+        console.log('  location:', location);
+        console.log('  phone:', phone);
+
+        // Wait for DOM to be ready
         document.addEventListener('DOMContentLoaded', function() {
-            // ✅ Dynamic injection with proper IDs
-            const params = new URLSearchParams(window.location.search);
-            const name = params.get('name') || window.BUSINESS_NAME || 'Business';
-            const location = params.get('location') || window.DEMO_BUSINESS_LOCATION || 'City';
+            console.log('✅ DOMContentLoaded - Updating elements...');
             
             // Update page title
             const titleEl = document.getElementById('pageTitle');
-            if(titleEl) titleEl.textContent = name + ' | Premium Service';
+            if (titleEl) {
+                titleEl.textContent = businessName + ' - Premium Service';
+                console.log('  ✅ Updated title:', businessName);
+            }
             
-            // Update business name if ID exists
-            const nameEl = document.getElementById('businessName');
-            if(nameEl) nameEl.textContent = name.toUpperCase();
+            // Update business name (main heading)
+            const businessNameEl = document.getElementById('businessName');
+            if (businessNameEl) {
+                businessNameEl.textContent = businessName.toUpperCase();
+                console.log('  ✅ Updated #businessName:', businessName);
+            }
             
+            // Update description with location
             const descEl = document.getElementById('businessDescription');
-            if(descEl) descEl.textContent = 'Located in ' + location;
+            if (descEl) {
+                descEl.textContent = 'Located in ' + location;
+                console.log('  ✅ Updated #businessDescription:', location);
+            }
             
-            // Update contact location
+            // Update location in contact section
             const locationEl = document.getElementById('contactLocation');
-            if(locationEl) locationEl.textContent = location + ', India';
+            if (locationEl) {
+                locationEl.textContent = location;
+                console.log('  ✅ Updated #contactLocation:', location);
+            }
+            
+            // Update phone in contact section
+            const phoneEl = document.getElementById('contactPhone');
+            if (phoneEl && phone) {
+                phoneEl.textContent = phone;
+                console.log('  ✅ Updated #contactPhone:', phone);
+            }
             
             // Update WhatsApp buttons
-            const whatsappNumber = '919876543210'; // Replace with actual number
-            const whatsappMessage = `Hi! I'm interested in your services. Can you share details?`;
-            const whatsappLink = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(whatsappMessage)}`;
+            const whatsappNumber = '919876543210';  // Default business number
+            const businessMsg = businessName ? encodeURIComponent(`Hi! I'm interested in ${businessName}'s services in ${location}. Can you share details?`) : encodeURIComponent('Hi! I\'m interested in your services. Can you share details?');
+            const whatsappLink = `https://wa.me/${whatsappNumber}?text=${businessMsg}`;
             
             const whatsappNav = document.getElementById('whatsappNav');
-            if(whatsappNav) whatsappNav.href = whatsappLink;
+            if (whatsappNav) {
+                whatsappNav.href = whatsappLink;
+                console.log('  ✅ Updated #whatsappNav');
+            }
             
             const whatsappHero = document.getElementById('whatsappHero');
-            if(whatsappHero) whatsappHero.href = whatsappLink;
+            if (whatsappHero) {
+                whatsappHero.href = whatsappLink;
+                console.log('  ✅ Updated #whatsappHero');
+            }
             
             const whatsappFooter = document.getElementById('whatsappFooter');
-            if(whatsappFooter) whatsappFooter.href = whatsappLink;
+            if (whatsappFooter) {
+                whatsappFooter.href = whatsappLink;
+                console.log('  ✅ Updated #whatsappFooter');
+            }
+            
+            console.log('✅ INJECTION COMPLETE');
         });
+
+        // Also run immediately in case DOMContentLoaded already fired
+        if (document.readyState === 'loading') {
+            console.log('⏳ Document still loading...');
+        } else {
+            console.log('⚡ Document already loaded, triggering update...');
+            // Manually trigger updates for already-loaded documents
+            const runImmediateUpdates = () => {
+                const titleEl = document.getElementById('pageTitle');
+                if (titleEl) titleEl.textContent = businessName + ' - Premium Service';
+                
+                const businessNameEl = document.getElementById('businessName');
+                if (businessNameEl) businessNameEl.textContent = businessName.toUpperCase();
+                
+                const descEl = document.getElementById('businessDescription');
+                if (descEl) descEl.textContent = 'Located in ' + location;
+                
+                const locationEl = document.getElementById('contactLocation');
+                if (locationEl) locationEl.textContent = location;
+            };
+            runImmediateUpdates();
+        }
     </script>
 </body>
 </html>
