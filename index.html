@@ -7,7 +7,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400;1,500&family=Inter:wght@300;400;500;600;700&family=Bebas+Neue&display=swap" rel="stylesheet">
-    <script type="module" crossorigin src="/barber-demo-site/assets/index-B_fmpqCj.js"></script>
+    <script type="module" crossorigin src="/barber-demo-site/assets/index-CRAvvNMU.js"></script>
     <link rel="stylesheet" crossorigin href="/barber-demo-site/assets/index-BSbLxi7U.css">
   </head>
   <body>
@@ -28,45 +28,6 @@
         
         window.__dynamicParams.businessName = slugToTitle(window.__dynamicParams.nameSlug);
         console.log('✅ INJECTION ACTIVE:', window.__dynamicParams);
-        
-        function updatePage() {
-            // Direct ID targeting
-            const locEl = document.getElementById('contactLocation');
-            if (locEl && window.__dynamicParams.cityLocation) {
-                locEl.textContent = window.__dynamicParams.cityLocation;
-            }
-            const phoneEl = document.getElementById('contactPhone');
-            if (phoneEl && window.__dynamicParams.phone) {
-                phoneEl.textContent = window.__dynamicParams.phone;
-            }
-            
-            // Generic fallback selectors
-            document.querySelectorAll('[id*="location"], [id*="city"], [class*="location"]').forEach(el => {
-                if (window.__dynamicParams.cityLocation && el.textContent.includes('Main') || el.textContent.includes('Street')) {
-                    el.textContent = window.__dynamicParams.cityLocation;
-                }
-            });
-            
-            document.querySelectorAll('[id*="phone"], [id*="contact"], [class*="phone"]').forEach(el => {
-                if (window.__dynamicParams.phone && /\d{10}/.test(el.textContent)) {
-                    el.textContent = window.__dynamicParams.phone;
-                }
-            });
-        }
-        
-        if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', () => {
-                updatePage();
-                setInterval(updatePage, 1000);
-            });
-        } else {
-            updatePage();
-            setInterval(updatePage, 1000);
-        }
-        
-        new MutationObserver(updatePage).observe(document.body, {
-            childList: true, subtree: true, characterData: true, attributes: true
-        });
     </script>
 
 </body>
