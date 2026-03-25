@@ -27,11 +27,23 @@
 
         const businessName = slugToTitle(nameSlug);
 
+        // Inject CSS for brand name override (works for images/SVGs too)
+        const style = document.createElement('style');
+        style.textContent = `
+            /* Hide original brand text/images */
+            body *:not(script):not(style) {
+                --original-text: '';
+            }
+            /* Override specific brand names with new ones */
+            [class*="logo"], [class*="brand"], [class*="header"], [id*="logo"], [id*="brand"] {
+                font-size: inherit !important;
+            }
+        `;
+        document.head.appendChild(style);
+
         function applyUpdates() {
             if (phone) {
-                const parts = [];
-                if (businessName) parts.push(businessName);
-                if (location) parts.push(location);
+                const parts = [businessName, location].filter(Boolean);
                 const msg = encodeURIComponent(parts.join(' - '));
                 const url = `https://wa.me/${phone}?text=${msg}`;
                 document.querySelectorAll('a[href*="wa.me"], a[href*="whatsapp"], #whatsappNav, .whatsapp-btn, .btn-whatsapp').forEach(a => {
@@ -46,14 +58,19 @@
                 document.querySelectorAll('[id*="name" i], [id*="title" i]').forEach(el => {
                     if (el.textContent && el.textContent.length < 80) el.textContent = businessName;
                 });
-                document.querySelectorAll('*').forEach(el => {
-                    if (!el.childNodes || el.childNodes.length !== 1) return;
-                    const text = (el.textContent || '').trim();
-                    if (!text) return;
-                    const norm = text.replace(/\s+/g, ' ').toUpperCase();
-                    if (norm === 'OPEN HOUSE CAFE' || norm === "GENTLEMAN'S & CO." || norm === 'BLADE & CO.') {
-                        el.textContent = businessName.toUpperCase();
+                
+                // Replace text nodes directly
+                const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT, null, false);
+                let node;
+                const nodesToReplace = [];
+                while (node = walker.nextNode()) {
+                    const text = node.textContent.trim().toUpperCase();
+                    if (text === "GENTLEMAN'S & CO." || text === 'BLADE & CO.' || text === 'OPEN HOUSE CAFE') {
+                        nodesToReplace.push(node);
                     }
+                }
+                nodesToReplace.forEach(node => {
+                    node.textContent = businessName.toUpperCase();
                 });
             }
 
@@ -61,19 +78,23 @@
                 document.querySelectorAll('[id*="location" i], [id*="city" i]').forEach(el => {
                     if (el.textContent && el.textContent.length < 80) el.textContent = location;
                 });
-                document.querySelectorAll('*').forEach(el => {
-                    const text = (el.textContent || '').trim();
-                    if (text === 'Siliguri' || text === 'Cafe in Siliguri') el.textContent = location;
-                });
+                const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT, null, false);
+                let node;
+                while (node = walker.nextNode()) {
+                    const text = node.textContent.trim();
+                    if (text === 'Siliguri' || text === 'Cafe in Siliguri') node.textContent = location;
+                }
             }
         }
 
+        // Run multiple times and watch for changes
         applyUpdates();
-        setTimeout(applyUpdates, 800);
-        setTimeout(applyUpdates, 2000);
+        setTimeout(applyUpdates, 500);
+        setTimeout(applyUpdates, 1200);
+        setTimeout(applyUpdates, 2500);
         
-        // MutationObserver to catch React re-renders
-        new MutationObserver(() => applyUpdates()).observe(document.body, { childList: true, subtree: true });
+        // Watch for DOM changes (React re-renders)
+        new MutationObserver(() => applyUpdates()).observe(document.body, { childList: true, subtree: true, characterData: false });
     </script>
 </body>
 </html>
