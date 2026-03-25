@@ -7,15 +7,15 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400;1,500&family=Inter:wght@300;400;500;600;700&family=Bebas+Neue&display=swap" rel="stylesheet">
-    <script type="module" crossorigin src="/barber-demo-site/assets/index-CeKK1U3C.js"></script>
-    <link rel="stylesheet" crossorigin href="/barber-demo-site/assets/index-oeRsTt37.css">
+    <script type="module" crossorigin src="/barber-demo-site/assets/index-DNTiPzUt.js"></script>
+    <link rel="stylesheet" crossorigin href="/barber-demo-site/assets/index-CrztOKZR.css">
   </head>
   <body>
     <div id="root"></div>
   
-    <!-- Dynamic Business & WhatsApp Injection (post-build, React-aware v3) -->
+    <!-- Dynamic Business & WhatsApp Injection -->
     <script>
-        window.__dynamicParams = window.__dynamicParams || {};
+        window.__dynamicParams = {};
         const params = new URLSearchParams(window.location.search);
         window.__dynamicParams.nameSlug = params.get('name') || '';
         window.__dynamicParams.cityLocation = params.get('location') || '';
@@ -23,168 +23,74 @@
 
         function slugToTitle(slug) {
             if (!slug) return '';
-            return slug
-                .split('-')
-                .map(w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase())
-                .join(' ');
+            return slug.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
         }
 
         window.__dynamicParams.businessName = slugToTitle(window.__dynamicParams.nameSlug);
-        
-        console.log('📍 Barber Injection Loaded:', window.__dynamicParams);
+        console.log('✅ INJECTION ACTIVE:', window.__dynamicParams);
 
-        function applyDynamicUpdates() {
+        function updatePage() {
             const { businessName, cityLocation, phone } = window.__dynamicParams;
             
-            try {
-                // 1) Update page title
-                if (businessName) {
-                    document.title = cityLocation
-                        ? `${businessName} | ${cityLocation}`
-                        : businessName;
-                }
+            // Update title
+            if (businessName) {
+                document.title = cityLocation ? `${businessName} | ${cityLocation}` : businessName;
+            }
 
-                // 2) Update business/brand headings
-                if (businessName) {
-                    const headingSelectors = ['h1', 'h2', '[class*="Hero"]', '[class*="hero"]', '[class*="Title"]', '[class*="title"]', '[id*="name"]', '[id*="title"]'];
-                    const seen = new Set();
-                    let headingCount = 0;
-                    headingSelectors.forEach(sel => {
-                        try {
-                            document.querySelectorAll(sel).forEach(el => {
-                                if (seen.has(el)) return;
-                                const text = (el.textContent || '').trim();
-                                if (!text || text.length > 200) return;
-                                if (text.length <= 100 || /demo|salon|barber|cafe|clinic|restaurant|shop/i.test(text)) {
-                                    el.textContent = businessName;
-                                    seen.add(el);
-                                    headingCount++;
-                                }
-                            });
-                        } catch (e) { }
-                    });
-                }
-
-                // 3) UPDATE LOCATION - SPECIFIC & AGGRESSIVE
-                if (cityLocation) {
-                    try {
-                        // Direct ID targeting first
-                        const locElements = [
-                            document.getElementById('contactLocation'),
-                            ...document.querySelectorAll('[id*="location"]'),
-                            ...document.querySelectorAll('[class*="location"]'),
-                            ...document.querySelectorAll('[id*="city"]'),
-                            ...document.querySelectorAll('[class*="city"]'),
-                            ...document.querySelectorAll('[id*="address"]')
-                        ].filter(el => el !== null);
-                        
-                        let locCount = 0;
-                        locElements.forEach(el => {
-                            try {
-                                const currentText = (el.textContent || '').trim();
-                                // Update if it's either empty, short, or contains a location-like text
-                                if (!currentText || currentText.length <= 100 || /street|siliguri|location|address|city|main/i.test(currentText)) {
-                                    // Also try to update attributes if it's an input
-                                    if (el.value !== undefined) {
-                                        el.value = cityLocation;
-                                    }
-                                    // Update text content
-                                    el.textContent = cityLocation;
-                                    locCount++;
-                                }
-                            } catch (e) { }
-                        });
-                        console.log(`✅ Updated ${locCount} location elements`);
-                    } catch (e) {
-                        console.error('Location update error:', e);
+            // Update location - aggressively target contactLocation id
+            if (cityLocation) {
+                const locEl = document.getElementById('contactLocation');
+                if (locEl) locEl.textContent = cityLocation;
+                
+                document.querySelectorAll('[id*="location"], [class*="location"], [id*="city"], [class*="city"]').forEach(el => {
+                    if (!el.textContent || el.textContent.length < 100) {
+                        el.textContent = cityLocation;
                     }
-                }
+                });
+            }
 
-                // 4) UPDATE PHONE - SPECIFIC & AGGRESSIVE  
-                if (phone) {
-                    try {
-                        const phoneElements = [
-                            document.getElementById('contactPhone'),
-                            ...document.querySelectorAll('[id*="phone"]'),
-                            ...document.querySelectorAll('[class*="phone"]'),
-                            ...document.querySelectorAll('[data-phone]')
-                        ].filter(el => el !== null);
-                        
-                        let phoneCount = 0;
-                        phoneElements.forEach(el => {
-                            try {
-                                const currentText = (el.textContent || '').trim();
-                                // Update phone if it matches a phone number pattern or is short
-                                if (!currentText || currentText.length <= 30 || /\d{4,}|phone|contact|call/i.test(currentText)) {
-                                    if (el.value !== undefined) {
-                                        el.value = phone;
-                                    }
-                                    el.textContent = phone;
-                                    phoneCount++;
-                                }
-                            } catch (e) { }
-                        });
-                        console.log(`✅ Updated ${phoneCount} phone elements`);
-
-                        // Update WhatsApp links
-                        const parts = [businessName, cityLocation].filter(Boolean);
-                        const msg = encodeURIComponent(parts.join(' - '));
-                        const url = `https://wa.me/${phone}?text=${msg}`;
-                        document.querySelectorAll('a[href*="wa.me"], a[href*="whatsapp"], .whatsapp-btn, .btn-whatsapp').forEach(a => {
-                            a.setAttribute('href', url);
-                            a.setAttribute('target', '_blank');
-                            a.setAttribute('rel', 'noopener');
-                        });
-                        console.log(`✅ WhatsApp links updated`);
-                    } catch (e) {
-                        console.error('Phone update error:', e);
+            // Update phone - aggressively target contactPhone id
+            if (phone) {
+                const phoneEl = document.getElementById('contactPhone');
+                if (phoneEl) phoneEl.textContent = phone;
+                
+                document.querySelectorAll('[id*="phone"], [class*="phone"]').forEach(el => {
+                    if (!el.textContent || el.textContent.length < 30) {
+                        el.textContent = phone;
                     }
-                }
-            } catch (e) {
-                console.error('❌ Injection error:', e);
+                });
+
+                // Update WhatsApp links
+                const msg = encodeURIComponent([businessName, cityLocation].filter(Boolean).join(' - '));
+                document.querySelectorAll('a[href*="wa.me"], .whatsapp-btn').forEach(a => {
+                    a.href = `https://wa.me/${phone}?text=${msg}`;
+                });
+            }
+
+            // Update business name  
+            if (businessName) {
+                document.querySelectorAll('h1, h2, [id*="name"], [id*="title"]').forEach(el => {
+                    const text = (el.textContent || '').trim();
+                    if (text && text.length < 100 && /barber|shop|salon|clinic/i.test(text || businessName)) {
+                        el.textContent = businessName;
+                    }
+                });
             }
         }
 
-        // Strategy: Apply multiple times at increasing intervals to survive React re-renders
-        let attempt = 0;
-        const maxAttempts = 50;  // More attempts
-        const delays = [0, 50, 100, 200, 400, 600, 900, 1300, 1800, 2500, 3500, 5000];
-        
-        function scheduleApply() {
-            if (attempt < maxAttempts) {
-                const delay = delays[Math.min(attempt, delays.length - 1)];
-                setTimeout(() => {
-                    attempt++;
-                    applyDynamicUpdates();
-                    scheduleApply();
-                }, delay);
-            }
-        }
-
+        // Apply on load and keep retrying
         if (document.readyState === 'loading') {
             document.addEventListener('DOMContentLoaded', () => {
-                console.log('📌 DOMContentLoaded, starting injection...');
-                scheduleApply();
+                updatePage();
+                setInterval(updatePage, 1000);
             });
         } else {
-            console.log('📌 Document already loaded, starting injection...');
-            scheduleApply();
+            updatePage();
+            setInterval(updatePage, 1000);
         }
 
-        // Aggressive MutationObserver to catch all React changes
-        try {
-            new MutationObserver(() => {
-                applyDynamicUpdates();
-            }).observe(document.documentElement, {
-                childList: true,
-                subtree: true,
-                characterData: true,  // Also watch for text changes
-                attributes: true,      // Watch for attribute changes
-            });
-            console.log('✅ MutationObserver active (aggressive mode)');
-        } catch (e) {
-            console.error('MutationObserver error:', e);
-        }
+        // Observe for React changes
+        new MutationObserver(updatePage).observe(document.body, { childList: true, subtree: true });
     </script>
 </body>
 </html>
