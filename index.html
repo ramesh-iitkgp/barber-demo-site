@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Premium Barber Shop - Professional Grooming</title>
+    <title id="pageTitle">Premium Barber Shop - Professional Grooming</title>
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display&family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -123,7 +123,44 @@
         <p>&copy; 2026 Premium Barber Shop.</p>
     </footer>
 
-    <script src="../assets/inject-data.js"></script>
-    <script>window.TEMPLATE_CATEGORY = 'barber';</script>
+    <script></script>
+    <!-- FIXED: All JavaScript inline with proper DOMContentLoaded -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // ✅ Dynamic injection with proper IDs
+            const params = new URLSearchParams(window.location.search);
+            const name = params.get('name') || window.BUSINESS_NAME || 'Business';
+            const location = params.get('location') || window.DEMO_BUSINESS_LOCATION || 'City';
+            
+            // Update page title
+            const titleEl = document.getElementById('pageTitle');
+            if(titleEl) titleEl.textContent = name + ' | Premium Service';
+            
+            // Update business name if ID exists
+            const nameEl = document.getElementById('businessName');
+            if(nameEl) nameEl.textContent = name.toUpperCase();
+            
+            const descEl = document.getElementById('businessDescription');
+            if(descEl) descEl.textContent = 'Located in ' + location;
+            
+            // Update contact location
+            const locationEl = document.getElementById('contactLocation');
+            if(locationEl) locationEl.textContent = location + ', India';
+            
+            // Update WhatsApp buttons
+            const whatsappNumber = '919876543210'; // Replace with actual number
+            const whatsappMessage = `Hi! I'm interested in your services. Can you share details?`;
+            const whatsappLink = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(whatsappMessage)}`;
+            
+            const whatsappNav = document.getElementById('whatsappNav');
+            if(whatsappNav) whatsappNav.href = whatsappLink;
+            
+            const whatsappHero = document.getElementById('whatsappHero');
+            if(whatsappHero) whatsappHero.href = whatsappLink;
+            
+            const whatsappFooter = document.getElementById('whatsappFooter');
+            if(whatsappFooter) whatsappFooter.href = whatsappLink;
+        });
+    </script>
 </body>
 </html>
