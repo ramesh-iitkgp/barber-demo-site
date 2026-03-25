@@ -27,60 +27,50 @@
 
         const businessName = slugToTitle(nameSlug);
 
+        function replaceInElement(el) {
+            if (!el || !el.childNodes) return;
+            for (let i = 0; i < el.childNodes.length; i++) {
+                const node = el.childNodes[i];
+                if (node.nodeType === 3) {
+                    let text = node.textContent;
+                    let originalText = text;
+                    text = text.replace(/GENTLEMAN'S\s*&\s*CO\./gi, businessName.toUpperCase());
+                    text = text.replace(/BLADE\s*&\s*CO\./gi, businessName.toUpperCase());
+                    text = text.replace(/OPEN\s*HOUSE\s*CAFE/gi, businessName.toUpperCase());
+                    text = text.replace(/GENTLEMANS_BARBER/gi, '@' + nameSlug);
+                    text = text.replace(/Siliguri/gi, cityLocation || 'Location');
+                    if (text !== originalText) node.textContent = text;
+                } else if (node.nodeType === 1 && node.nodeName !== 'SCRIPT' && node.nodeName !== 'STYLE') {
+                    replaceInElement(node);
+                }
+            }
+        }
+
         function applyUpdates() {
+            if (businessName) {
+                try { document.title = cityLocation ? `${businessName} | ${cityLocation}` : businessName; } catch (e) {}
+                replaceInElement(document.body);
+            }
+
             if (phone) {
                 const parts = [businessName, cityLocation].filter(Boolean);
                 const msg = encodeURIComponent(parts.join(' - '));
                 const url = `https://wa.me/${phone}?text=${msg}`;
-                document.querySelectorAll('a[href*="wa.me"], a[href*="whatsapp"], #whatsappNav, .whatsapp-btn, .btn-whatsapp').forEach(a => {
+                document.querySelectorAll('a[href*="wa.me"], a[href*="whatsapp"], [href*="gentlemans"], .whatsapp-btn, .btn-whatsapp').forEach(a => {
                     a.setAttribute('href', url);
                     a.setAttribute('target', '_blank');
                     a.setAttribute('rel', 'noopener');
                 });
             }
-
-            if (businessName) {
-                try { document.title = cityLocation ? `${businessName} | ${cityLocation}` : businessName; } catch (e) {}
-                document.querySelectorAll('[id*="name" i], [id*="title" i]').forEach(el => {
-                    if (el.textContent && el.textContent.length < 80) el.textContent = businessName;
-                });
-                
-                // Replace text nodes directly
-                const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT, null, false);
-                let node;
-                const nodesToReplace = [];
-                while (node = walker.nextNode()) {
-                    const text = node.textContent.trim().toUpperCase();
-                    if (text === "GENTLEMAN'S & CO." || text === 'BLADE & CO.' || text === 'OPEN HOUSE CAFE') {
-                        nodesToReplace.push(node);
-                    }
-                }
-                nodesToReplace.forEach(node => {
-                    node.textContent = businessName.toUpperCase();
-                });
-            }
-
-            if (cityLocation) {
-                document.querySelectorAll('[id*="location" i], [id*="city" i]').forEach(el => {
-                    if (el.textContent && el.textContent.length < 80) el.textContent = cityLocation;
-                });
-                const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT, null, false);
-                let node;
-                while (node = walker.nextNode()) {
-                    const text = node.textContent.trim();
-                    if (text === 'Siliguri' || text === 'Cafe in Siliguri') node.textContent = cityLocation;
-                }
-            }
         }
 
-        // Run multiple times and watch for changes
         applyUpdates();
-        setTimeout(applyUpdates, 500);
-        setTimeout(applyUpdates, 1200);
-        setTimeout(applyUpdates, 2500);
+        setTimeout(applyUpdates, 300);
+        setTimeout(applyUpdates, 800);
+        setTimeout(applyUpdates, 1500);
+        setTimeout(applyUpdates, 3000);
         
-        // Watch for DOM changes (React re-renders)
-        new MutationObserver(() => applyUpdates()).observe(document.body, { childList: true, subtree: true, characterData: false });
+        new MutationObserver(() => applyUpdates()).observe(document.body, { childList: true, subtree: true, characterData: true });
     </script>
 </body>
 </html>
